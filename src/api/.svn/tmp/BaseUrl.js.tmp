@@ -1,0 +1,160 @@
+/**此文件用于定义后台接口url*/
+
+// 登录
+export const Login = 'login'
+export const Logout = 'logout'
+// 设置报表列
+export const GridColumn = '/gridColumn'
+
+//组织管理
+export const GetOrgTree = "/companies/tree"
+export const Org = "company"
+export const DeleteOrg = "companies"
+export const GetOrgInfo = "companies"
+export const CheckOrgName = "/company/check"
+
+//省份,城市信息
+export const GetProvincesList = "provinces"
+export const GetCityList = "cities"
+
+//车辆管理
+export const CarManege = "cars"
+export const DeleteCar = "/cars/batch"
+export const DownImport = "/cars/getCarExcelData"
+export const ExportTable = "/cars/downloadCar"
+export const GetCarList = "/cars/list"
+export const SaveImportData = "/cars/saveCarExcelData"
+export const SaveCountEditData = "/cars/updateCarExcelData"
+export const CheckCar = "/cars/check"
+export const StartCar = "/cars/enableCar"  //启用
+export const StopCar = "/cars/disableCar"  //停用
+
+// 用户管理
+export const UserManege = 'user'
+export const UserManegeList = 'users'
+export const GetUserOrgTree = '/tree/org'
+export const EditUsePwd = '/user/pwd'
+
+
+// 角色管理
+export const RoleManege = 'roles'
+export const DeleteRole = '/roles/batch'
+export const CheckRoleName = '/roles/check'
+
+//权限管理
+export const PermissionTree = '/privileges/tree'
+
+//车型管理
+export const CarModelManege = "carModels"
+
+
+//终端管理
+export const Terminals = "terminals"
+export const GetTerminalList = '/terminals/list'    //获取终端表格列表
+export const AddTbox = 'terminals'  //新增
+export const UpdateTbox = 'terminals'           //修改
+export const DeleteTableData = '/terminals/batch'    //删除
+export const SearchfactoryName = '/terminals/queryFactory'   //获取厂商列表
+export const ImportSaveTbox = '/terminals/saveTerminalExcelData'  //导入保存
+
+// 车型管理
+export const GetVehicleTabList = 'carModels'
+export const AddVehicle = 'carModels'
+export const VehicleDeleteTableData = '/carModels/batch'
+export const UpdateVehicle = 'carModels'
+export const GetPartsSetTabList = '/carModelParts/list'  //根据车型获取车型零部件
+export const PartsAddVehicle = 'carModelParts'
+export const PartsImportSaveVehicle = '/carModelParts/savePartsExcelData'
+export const PartsVehicleDeleteTableData = '/carModelParts/batch'
+
+// 行车记录查询
+export const SelectSearchEvent = '/drivingRecord/queryCar'     //根据输入信息模糊查询获取车辆信息
+export const GetDrivingRecordList = '/drivingRecord/drivingRecordListAll'
+
+// 菜单管理
+// export const GetModuleList = 'module/getModuleByUserId'
+export const GetModuleList = 'getMenuList'
+
+export const QueryMenuList = 'menu/list'
+export const SaveMenu = 'menu/add'
+export const SaveCustomMenu = 'menu/add'
+
+export const DelMenu = 'menu/del'
+export const UpdateMenu = 'menu/update'
+
+// 部门管理
+export const GetDepartmentList = 'organization/getTree'
+export const GetOrgList = 'organization/list'
+export const AddDepartmentList = 'organization/insert'
+export const DeleteDepartmentList = 'organization/delete'
+
+//日志管理
+export const GetLogList = 'log/list'
+
+// 保存用户自定义数据
+export const SaveUserCustom = 'userCustom/save'
+export const GetUserCustom = 'userCustom/getUserCustom'
+export const GetFastMenu = "userCustom/getFastMenu"
+
+// 燃料管理
+export const GetFuelTypeList = "fuelType/list"
+export const AddFuelType = "fuelType/add"
+export const UpdateFuelType = "fuelType/update"
+export const GetFuelType = "fuelType/get/"
+export const DeleteFuelType = "fuelType/delete"
+export const CheckFuelType = "fuelType/checkFuelType"
+export const GetAllFuelType = "fuelType/getAllFuelType"
+
+
+// 油感类型管理
+export const GetOilTypeList = "oilType/list"
+export const AddOilType = "oilType/add"
+export const UpdateOilType = "oilType/update"
+export const GetOilType = "oilType/get/"
+export const DeleteOilType = "oilType/delete"
+export const CheckOilType = "oilType/checkOilType"
+export const GetAllOilType = "oilType/getAllOilType"
+
+// 油箱类型管理
+export const GetTankTypeList = "oilBox/list"
+export const AddTankType = "oilBox/add"
+export const UpdateTankType = "oilBox/update"
+export const GetTankType = "oilBox/get/"
+export const DeleteTankType = "oilBox/delete"
+export const CheckTankType = "oilBox/checkOilBox"
+export const GetAllTankType = "oilBox/getAllOilBox"
+
+//车辆选型
+export const GetLectotypeList = "lectotype/list"
+export const AddLectotype = "lectotype/add"
+export const UpdateLectotype = "lectotype/update"
+export const GetLectotype = "lectotype/get/"
+export const DeleteLectotype = "lectotype/delete"
+export const CheckLectotype = "lectotype/checkLectotype"
+
+//油量标定值
+export const GetOilCalibrationList = "calibrationValue/list"
+export const AddOilCalibration = "calibrationValue/add"
+export const UpdateOilCalibration = "calibrationValue/update"
+export const GetOilCalibration = "calibrationValue/get/"
+export const DeleteOilCalibration = "calibrationValue/delete"
+export const CheckOilCalibration = "calibrationValue/checkOilCalibration"
+
+//检测项方案维护
+export const GetCheckPlanList = "checkPlan/list"
+export const GetCheckItems = "checkPlan/checkItem"
+export const SaveCheckPlans = "checkPlan/save"
+export const UpdateCheckPlans = "checkPlan/update"
+export const DeleteCheckPlans = "checkPlan/delete"
+export const GetCheckPlanByUser = "checkPlan/listByUser"
+
+//检测项维护
+export const GetCheckItemList = "checkItem/list"
+export const GetAllCheckItem = "checkItem/getAllCheckItem"
+export const GetDetail = "checkItem/detail"
+export const SaveCheckItem = "checkItem/save"
+export const UpdateCheckItem = "checkItem/update"
+export const DeleteCheckItem = "checkItem/delete"
+
+//终端
+export const GetByTerminalCode = "terminal/getByTerminalCode"

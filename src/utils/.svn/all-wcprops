@@ -1,0 +1,41 @@
+K 25
+svn:wc:ra_dav:version-url
+V 91
+/svn/cloud_pt/!svn/ver/38974/platform/products/hq4.0/trunk/hqweb/hq-platform-html/src/utils
+END
+StringUtil.js
+K 25
+svn:wc:ra_dav:version-url
+V 105
+/svn/cloud_pt/!svn/ver/37578/platform/products/hq4.0/trunk/hqweb/hq-platform-html/src/utils/StringUtil.js
+END
+CookiesUtil.js
+K 25
+svn:wc:ra_dav:version-url
+V 106
+/svn/cloud_pt/!svn/ver/37578/platform/products/hq4.0/trunk/hqweb/hq-platform-html/src/utils/CookiesUtil.js
+END
+ValidateUtils.js
+K 25
+svn:wc:ra_dav:version-url
+V 108
+/svn/cloud_pt/!svn/ver/39175/platform/products/hq4.0/trunk/hqweb/hq-platform-html/src/utils/ValidateUtils.js
+END
+base.js
+K 25
+svn:wc:ra_dav:version-url
+V 99
+/svn/cloud_pt/!svn/ver/39253/platform/products/hq4.0/trunk/hqweb/hq-platform-html/src/utils/base.js
+END
+dateUtil.js
+K 25
+svn:wc:ra_dav:version-url
+V 103
+/svn/cloud_pt/!svn/ver/38720/platform/products/hq4.0/trunk/hqweb/hq-platform-html/src/utils/dateUtil.js
+END
+HttpClient.js
+K 25
+svn:wc:ra_dav:version-url
+V 105
+/svn/cloud_pt/!svn/ver/38831/platform/products/hq4.0/trunk/hqweb/hq-platform-html/src/utils/HttpClient.js
+END

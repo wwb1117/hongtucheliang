@@ -1,0 +1,1825 @@
+<template>
+    <el-container id="vehicleManageWrap" class="fun_wrap fun_content_wrap" v-bind:style="{height: wrapHeight + 'px',position: 'relative'}">
+        <el-header>
+            <div class="searbox_wrap">
+                <div class="searFormRow">
+                    <el-row class="sear_box">
+                        <div :style="{'float':'left'}">
+                            <el-form :inline="true" ref="form" :model="vehicleManageSearParam" class="_carManageHeader" size="small" :rules="rules">
+                                <el-form-item label="车型名称" prop="modelName" verify can-be-empty VerifyTerminal>
+                                    <el-input class="sear_input" v-model="vehicleManageSearParam.modelName" placeholder="请输入..." clearable></el-input>
+                                </el-form-item>
+                                <el-form-item label="公告号" prop="modelCode" verify can-be-empty VerifyModelCode>
+                                    <el-input class="sear_input" v-model="vehicleManageSearParam.modelCode" placeholder="请输入..." clearable></el-input>
+                                </el-form-item>
+                                <el-form-item label="公告批次" prop="noticeBatchno" verify can-be-empty VerifyNoticeBatchno>
+                                    <el-input class="sear_input" v-model="vehicleManageSearParam.noticeBatchno" placeholder="请输入..." clearable></el-input>
+                                </el-form-item>
+                            </el-form>
+                        </div>
+                        <div >
+                            <el-button @click="getTableData" type="success" size="mini" :style="{'height':'32px', marginLeft: '20px'}">查询</el-button>
+                        </div>
+                    </el-row>
+                </div>
+                <el-row :span="24" class="btnGroupRow">
+                    <el-col :span="4">
+                        <el-button v-hasPermisson="'车型管理_删除'" type="danger" icon="el-icon-delete" @click="deleteBtn" size="mini">删除</el-button>
+                        <!-- <el-button prop='search' type="success" icon="el-icon-search" @click="searchBtn" size="mini">查看</el-button> -->
+                    </el-col>
+                    <el-col :span="8.5" :style="{'float':'right', position: 'relative'}">
+                        <el-button class="myBtnType_Cyan" icon="fa fa-bandcamp" @click="iconManageEvent" plain size="mini">图标管理</el-button>
+                        <el-button v-hasPermisson="'车型管理_导出'" class="myBtnType_Cyan" icon="el-icon-upload2" plain @click="exportBtn" size="mini">导出</el-button>
+                        <el-button v-hasPermisson="'车型管理_新增'" type="primary" icon="el-icon-plus" @click="addBtn" size="mini">新增</el-button>
+                        <div :style="{position: 'absolute', right: '20px', top: '45px'}">
+                            <el-popover
+                                ref="setTableCol"
+                                placement="bottom-start"
+                                width="100"
+                                @hide="tableCellCloseEvent"
+                                trigger="click">
+                                <EasyScrollbar>
+                                    <div v-bind:style="{maxHeight: '250px'}">
+                                        <el-checkbox :indeterminate="isIndeterminate" v-model="checkAll" @change="handleCheckAllChange">全选</el-checkbox>
+                                        <el-checkbox-group @change="handleCheckGroupChange" v-model="checkList">
+                                            <el-checkbox v-for="(value, key) in tableCellKeyVal" :key="key" :label="key">{{value}}</el-checkbox>
+                                        </el-checkbox-group>
+                                    </div>
+                                </EasyScrollbar>
+                            </el-popover>
+                            <span v-popover:setTableCol class="fa-stack" :style="{color: '#999'}">
+                                <i class="fa fa-filter fa-2x"></i>
+                                <i :style="{paddingLeft: '20px', paddingTop: '5px'}" class="fa fa-align-center fa-stack-1x"></i>
+                            </span>
+                        </div>
+                    </el-col>
+                </el-row>
+            </div>
+        </el-header>
+        <el-main>
+            <el-table ref="vehicleManageTable" @row-click="rowClickEvent" :model="form" @selection-change="tableSelectChange"  :data="vehicleManageTab" :height="tableHeight" tooltip-effect="dark" :stripe="true" size="mini" highlight-current-row :border="true">
+                <el-table-column :show-overflow-tooltip="showTipFlg" width="34" header-align="left" type="selection" label=""></el-table-column>
+                <el-table-column :show-overflow-tooltip="showTipFlg" width="50" header-align="left" type="index" label="序号"></el-table-column>
+                <el-table-column v-if="isTableCellShow('modelName')" :show-overflow-tooltip="showTipFlg" header-align="left" prop="modelName" label="车型名称">
+                    <template slot-scope="scope">
+                        <div v-if="isEditPermisson" @click="cellClickEvent(scope.row)" :style="{'color':'#409EFF','cursor':'pointer'}">
+                            <span class="el-icon-edit"></span>
+                            <span >{{ scope.row.modelName }}</span>
+                        </div>
+                        <div v-if="!isEditPermisson" @click="cellClickEvent(scope.row)" v-bind:style="{color:'#409EFF',cursor:'pointer'}">
+                            <span class="fa fa-book"></span>
+                            <span >{{ scope.row.modelName }}</span>
+                        </div>
+                    </template>
+                </el-table-column>
+                <el-table-column v-if="isTableCellShow('modelCode')" :show-overflow-tooltip="showTipFlg" header-align="left" prop="modelCode" label="公告号"></el-table-column>
+                <el-table-column v-if="isTableCellShow('noticeBatchno')" :show-overflow-tooltip="showTipFlg" header-align="left" prop="noticeBatchno" label="公告批次"></el-table-column>
+                <el-table-column v-if="isTableCellShow('energyTypeStr')" :show-overflow-tooltip="showTipFlg" header-align="left" prop="energyTypeStr" label="能源类型"></el-table-column>
+                <el-table-column v-if="isTableCellShow('carLength')" :show-overflow-tooltip="showTipFlg" header-align="left" prop="carLength" label="车辆长度"></el-table-column>
+                <el-table-column v-if="isTableCellShow('carWidth')" :show-overflow-tooltip="showTipFlg" header-align="left" prop="carWidth" label="车辆宽度"></el-table-column>
+                <el-table-column v-if="isTableCellShow('carHeigth')" :show-overflow-tooltip="showTipFlg" header-align="left" prop="carHeigth" label="车辆高度"></el-table-column>
+                <el-table-column v-if="isTableCellShow('parts')" :show-overflow-tooltip="showTipFlg" header-align="left" prop="parts" label="零部件">
+                    <template slot-scope="scope">
+                        <span v-bind:style="{color:'#409EFF',cursor:'pointer'}"  @click="openPartsWinEvent(scope.row)">零部件配置</span>
+                    </template>
+                </el-table-column>
+                <el-table-column v-if="isTableCellShow('remark')" :show-overflow-tooltip="showTipFlg" header-align="left" prop="remark" label="简介"> </el-table-column>
+                <el-table-column v-if="isTableCellShow('updateTime')" :show-overflow-tooltip="showTipFlg" header-align="left" prop="updateTime" label="更新时间"> </el-table-column>
+                <el-table-column v-if="isTableCellShow('createUserName')" :show-overflow-tooltip="showTipFlg" header-align="left" prop="createUserName" label="创建人"> </el-table-column>
+            </el-table>
+        </el-main>
+        <el-footer class="footer_page">
+            <el-row :span="24">
+                <el-col :span="15" :offset="9">
+                    <el-pagination @size-change="handleSizeChange" @current-change="handleCurrentChange" :current-page="currentPage" :page-sizes="[15, 20, 30, 50]" :page-size="pageSize" layout="total, sizes, prev, pager, next, jumper" :total="TotalPages" background>
+                    </el-pagination>
+                </el-col>
+            </el-row>
+        </el-footer>
+
+        <!-- 图标管理 -->
+        <el-dialog v-drag="{width:710,height:372}" @open="iconManageWinOpenEvent" :close-on-click-modal="false" title="图标管理" :visible.sync="iconManageDialogVisible" width="720px">
+            <div>
+                <el-row>
+                    <el-button type="primary" @click="iconManageAdd" icon="el-icon-plus" size="mini">新增</el-button>
+                    <el-button type="primary" @click="iconManageEdit" icon="el-icon-edit" size="mini">修改</el-button>
+                    <el-button type="danger" @click="iconManageDelete" icon="el-icon-delete" size="mini">删除</el-button>
+                </el-row>
+                <el-row :style="{height: '250px', marginTop: '20px'}">
+                    <el-radio-group v-model="iconManageSelect">
+                        <el-radio v-for="(item1, index) in iconList" :key="item1.name" :label="item1.name" v-if="index != 0">
+                            <img v-for="(item2, index) in item1.children" :key="index" :src="baseURL + '/carmodelicon/' + item1.name + '/' + item2.name + '?' + item1.uuid">
+                        </el-radio>
+                    </el-radio-group>
+                </el-row>
+            </div>
+
+        </el-dialog>
+        <!-- 选择图标弹框 -->
+        <el-dialog v-drag="{width:710,height:372}" @open="iconSelectWinOpenEvent" :close-on-click-modal="false" title="选择图标" :visible.sync="iconSelectDialogVisible" width="720px">
+            <div>
+                <el-row :style="{height: '250px', marginTop: '20px'}">
+                    <el-radio-group v-model="iconSelectSelect">
+                        <el-radio v-for="item1 in iconList" :key="item1.name" :label="item1.name">
+                            <img v-for="item2 in item1.children" :key="item2.name" :src="baseURL + '/carmodelicon/' + item1.name + '/' + item2.name">
+                        </el-radio>
+                    </el-radio-group>
+                </el-row>
+
+            </div>
+
+            <div slot="footer">
+                <el-button class="myBtnType_Cyan" @click="iconUpBtnEvent" type="success" size="mini">上 传</el-button>
+                <el-button class="dialogClose" @click="iconSelectDialogVisible = false" size="mini">取 消</el-button>
+                <el-button type="success" @click="iconSelectWinSave" size="mini">确 认</el-button>
+            </div>
+        </el-dialog>
+        <!-- 新增图标弹框 -->
+        <el-dialog v-drag="{width:710,height:372}" @close="iconAddWinCloseEvent" :close-on-click-modal="false" title="新增车型图标" :visible.sync="iconAddDialogVisible" width="720px">
+            <form id="iconform" ref="iconform" enctype="multipart/form-data">
+                <!-- <input value="-1" name="width" id="icon_width" type="hidden"> -->
+                <!-- <input value="-1" name="height" id="icon_height" type="hidden"> -->
+                <div :style="{lineHeight: '40px'}">
+                    <el-row :style="{width: '700px'}">
+                        <el-col :span="4">
+                            行驶图标
+                        </el-col>
+                        <el-col :span="10">
+                            <el-upload
+                                class="upload-demo"
+                                :action="uploadIconBaseUrl"
+                                ref="drivingImage"
+                                :auto-upload="false"
+                                :data="addIconUploadParam"
+                                :on-success="drivingIconSuccessCB"
+                                name="drivingImage"
+                                :on-remove="addIconDriEvent"
+                                :file-list="drivingImagefileList"
+                                :limit="1"
+                                >
+                                <el-button size="small" @click="addUploadBtnType(1)" type="primary">点击上传</el-button>
+                                <!-- <div slot="tip" class="el-upload__tip">只能上传jpg/png文件，且不超过500kb</div> -->
+                            </el-upload>
+                        </el-col>
+                    </el-row>
+                    <el-row :style="{width: '700px'}">
+                        <el-col :span="4">
+                            停车图标
+                        </el-col>
+                        <el-col :span="10">
+                            <el-upload
+                                class="upload-demo"
+                                :action="uploadIconBaseUrl"
+                                :data="addIconUploadParam"
+                                :auto-upload="false"
+                                ref="stopImage"
+                                :file-list="stopImagefileList"
+                                :on-success="stopIconSuccessCB"
+                                :on-remove="addIconStopEvent"
+                                name="stopImage"
+                                :limit="1"
+                                >
+                                <el-button size="small" @click="addUploadBtnType(2)" type="primary">点击上传</el-button>
+                                <!-- <div slot="tip" class="el-upload__tip">只能上传jpg/png文件，且不超过500kb</div> -->
+                            </el-upload>
+                        </el-col>
+                    </el-row>
+                    <el-row :style="{width: '700px'}">
+                        <el-col :span="4">
+                            离线图标
+                        </el-col>
+                        <el-col :span="10">
+                            <el-upload
+                                class="upload-demo"
+                                ref="offlineImage"
+                                :auto-upload="false"
+                                :action="uploadIconBaseUrl"
+                                :data="addIconUploadParam"
+                                :file-list="offlineImagefileList"
+                                :on-remove="addIconOfflineEvent"
+                                :on-success="offlineIconSuccessCB"
+                                name="offlineImage"
+                                :limit="1"
+                                >
+                                <el-button size="small" @click="addUploadBtnType(3)" type="primary">点击上传</el-button>
+                                <!-- <div slot="tip" class="el-upload__tip">只能上传jpg/png文件，且不超过500kb</div> -->
+                            </el-upload>
+                        </el-col>
+                    </el-row>
+                </div>
+            </form>
+            <div slot="footer">
+                <el-button class="dialogClose" @click="iconAddDialogVisible = false" size="mini">取 消</el-button>
+                <el-button type="success" @click="addSureBtn" size="mini">保 存</el-button>
+            </div>
+        </el-dialog>
+        <!-- 修改图标弹框 -->
+        <el-dialog v-drag="{width:710,height:372}" @close="editIconWinClose" :close-on-click-modal="false" title="修改车型图标" :visible.sync="iconEditDialogVisible" width="720px">
+            <form id="iconform" ref="iconform" enctype="multipart/form-data">
+                <div :style="{lineHeight: '40px'}">
+                    <el-row :style="{width: '700px'}">
+                        <el-col :span="4">
+                            行驶图标
+                        </el-col>
+                        <el-col :span="10">
+                            <el-upload
+                                class="upload-demo"
+                                :action="uploadIconBaseUrl"
+                                ref="drivingImageedit"
+                                :auto-upload="false"
+                                :data="editParamdriving"
+                                :on-success="editdrivingIconSuccessCB"
+                                name="drivingImage"
+                                :on-remove="IconEditdrivremove"
+                                :file-list="drivingImagefileListedit"
+                                :limit="1"
+                                >
+                                <el-button size="small" @click="editIconTypeCode(1)" type="primary">点击上传</el-button>
+                                <!-- <div slot="tip" class="el-upload__tip">只能上传jpg/png文件，且不超过500kb</div> -->
+                                <img :src="baseURL + '/carmodelicon/' + iconManageSelect + '/' + 'drivingImage.png' + '?' + setUuid()">
+                            </el-upload>
+                        </el-col>
+                    </el-row>
+                    <el-row :style="{width: '700px'}">
+                        <el-col :span="4">
+                            停车图标
+                        </el-col>
+                        <el-col :span="10">
+                            <el-upload
+                                class="upload-demo"
+                                :action="uploadIconBaseUrl"
+                                :data="editParamstop"
+                                :on-success="editStopIconSuccessCB"
+                                :auto-upload="false"
+                                ref="stopImageedit"
+                                :on-remove="IconEditstopremove"
+                                :file-list="stopImagefileListedit"
+                                name="stopImage"
+                                :limit="1"
+                                >
+                                <el-button size="small" @click="editIconTypeCode(2)" type="primary">点击上传</el-button>
+                                <!-- <div slot="tip" class="el-upload__tip">只能上传jpg/png文件，且不超过500kb</div> -->
+                                <img :src="baseURL + '/carmodelicon/' + iconManageSelect + '/' + 'stopImage.png' + '?' + setUuid()">
+                            </el-upload>
+
+                        </el-col>
+                    </el-row>
+                    <el-row :style="{width: '700px'}">
+                        <el-col :span="4">
+                            离线图标
+                        </el-col>
+                        <el-col :span="10">
+                            <el-upload
+                                class="upload-demo"
+                                ref="offlineImageedit"
+                                :auto-upload="false"
+                                :action="uploadIconBaseUrl"
+                                :data="editParamoffline"
+                                :on-success="editOfflineIconSuccessCB"
+                                :file-list="offlineImagefileListedit"
+                                :on-remove="IconEditofflineremove"
+                                name="offlineImage"
+                                :limit="1"
+                                >
+                                <el-button size="small" @click="editIconTypeCode(3)" type="primary">点击上传</el-button>
+                                <!-- <div slot="tip" class="el-upload__tip">只能上传jpg/png文件，且不超过500kb</div> -->
+                                <img :src="baseURL + '/carmodelicon/' + iconManageSelect + '/' + 'offlineImage.png' + '?' + setUuid()">
+                            </el-upload>
+                        </el-col>
+                    </el-row>
+                </div>
+            </form>
+            <div slot="footer">
+                <el-button class="dialogClose" @click="iconEditDialogVisible = false" size="mini">取 消</el-button>
+                <el-button type="success" @click="editSureBtn" size="mini">保 存</el-button>
+            </div>
+        </el-dialog>
+        <!-- 新增车型 -->
+        <el-dialog v-drag="{width:710,height:372}" :close-on-click-modal="false" :title="winTitle" @close="closeWindow('form')" :visible.sync="addDialogFormVisible" width="710px">
+           <el-form :model="form" ref="addForm" :rules="rules" :inline="true" size="small">
+                <el-row>
+                    <el-col :span="12">
+                        <el-form-item label="车型名称" class="verify" verify VerifyTerminal prop="modelName" :label-width="formLabelWidth">
+                            <el-input class="user_input_width" v-model="form.modelName" auto-complete="off" placeholder="请输入..." clearable></el-input>
+                        </el-form-item>
+                    </el-col>
+                    <el-col :span="12">
+                        <el-form-item label="车辆长度" verify can-be-empty VerifyNum prop="carLength" :label-width="formLabelWidth">
+                            <el-input class="user_input_width" v-model="form.carLength" auto-complete="off" placeholder="请输入..." clearable></el-input>
+                        </el-form-item>
+                    </el-col>
+                </el-row>
+                <el-row>
+                    <el-col :span="12">
+                        <el-form-item label="能源类型" prop="energyType" :label-width="formLabelWidth">
+                            <el-select  v-model="form.energyType" :style="{'width':'194px'}" placeholder="请选择...">
+                                <el-option :label="item.name" :key="item.id" v-for="item in energyTypeChoose" :value="item.id"></el-option>
+                            </el-select>
+                        </el-form-item>
+                    </el-col>
+                    <el-col :span="12">
+                        <el-form-item label="车辆宽度" verify can-be-empty VerifyNum prop="carWidth" :label-width="formLabelWidth">
+                            <el-input class="user_input_width" v-model="form.carWidth" auto-complete="off" placeholder="请输入..." clearable></el-input>
+                        </el-form-item>
+                    </el-col>
+                </el-row>
+                <el-row>
+                    <el-col :span="12">
+                        <el-form-item label="公告号" class="verify" verify VerifyModelCode prop="modelCode" :label-width="formLabelWidth">
+                            <el-input class="user_input_width" v-model="form.modelCode" auto-complete="off" placeholder="请输入..." clearable></el-input>
+                        </el-form-item>
+                    </el-col>
+                    <el-col :span="12">
+                        <el-form-item label="车辆高度" verify can-be-empty VerifyNum prop="carHeigth" :label-width="formLabelWidth">
+                            <el-input class="user_input_width" v-model="form.carHeigth" auto-complete="off" placeholder="请输入..." clearable></el-input>
+                        </el-form-item>
+                    </el-col>
+                </el-row>
+                <el-row>
+                    <el-col :span="12">
+                        <el-form-item label="公告批次" class="verify" verify VerifyNoticeBatchno prop="noticeBatchno" :label-width="formLabelWidth">
+                            <el-input class="user_input_width" v-model="form.noticeBatchno" auto-complete="off" placeholder="请输入..." clearable></el-input>
+                        </el-form-item>
+                    </el-col>
+                </el-row>
+                <el-row class="iconshow" :span="24">
+                    <el-form-item label="图标设置" :label-width="formLabelWidth">
+                            <a @click="carModelIconSelectEvent" :style="{'color':'#409EFF','cursor':'pointer', marginRight: '20px', textDecoration: 'underline'}">选择图标</a>
+                            <img src="">
+                            <img src="">
+                            <img src="">
+                            <!-- static/img/default/offlineImage.png -->
+                    </el-form-item>
+                </el-row>
+                <el-row class="user_dailog_form">
+                    <el-col :span="24">
+                        <el-form-item label="简介" prop="remark" :label-width="formLabelWidth">
+                            <el-input  type="textarea" :maxlength="100" :style="{'width':'526px'}"  v-model="form.remark" placeholder="请输入..." clearable></el-input>
+                        </el-form-item>
+                    </el-col>
+                </el-row>
+            </el-form>
+            <div slot="footer">
+                <el-button @click="closeWindow('form')" class="dialogClose" size="mini">取 消</el-button>
+                <el-button type="success" @click="addSaveVehicleEvent('form')" size="mini">保 存</el-button>
+            </div>
+        </el-dialog>
+        <!-- 修改车型 -->
+        <el-dialog v-drag="{width:710,height:372}" :close-on-click-modal="false" :title="winTitle" @close="closeWindow('form')" :visible.sync="editDialogFormVisible" width="710px">
+           <el-form :model="form" ref="editForm" size="small" :rules="rules" :inline="true" :disabled="btnSelect == 'edit' && !isEditPermisson">
+                <el-row>
+                    <el-col :span="12">
+                        <el-form-item label="车型名称" class="verify" verify VerifyTerminal prop="modelName" :label-width="formLabelWidth">
+                            <el-input v-focus="btnSelect == 'add'" class="user_input_width" v-model="form.modelName" auto-complete="off" placeholder="请输入..." clearable></el-input>
+                        </el-form-item>
+                    </el-col>
+                    <el-col :span="12">
+                        <el-form-item label="车辆长度" verify can-be-empty VerifyNum prop="carLength" :label-width="formLabelWidth">
+                            <el-input class="user_input_width" v-model.number="form.carLength" auto-complete="off" placeholder="请输入..." clearable></el-input>
+                        </el-form-item>
+                    </el-col>
+                </el-row>
+                <el-row>
+                    <el-col :span="12">
+                        <el-form-item label="能源类型" prop="energyType" :label-width="formLabelWidth">
+                            <el-select  v-model="form.energyType" :style="{'width':'194px'}" placeholder="请选择...">
+                                <el-option :label="item.name" :key="item.id" v-for="item in energyTypeChoose" :value="item.id"></el-option>
+                            </el-select>
+                        </el-form-item>
+                    </el-col>
+                    <el-col :span="12">
+                        <el-form-item label="车辆宽度" verify can-be-empty VerifyNum prop="carWidth" :label-width="formLabelWidth">
+                            <el-input class="user_input_width" v-model.number="form.carWidth" auto-complete="off" placeholder="请输入..." clearable></el-input>
+                        </el-form-item>
+                    </el-col>
+                </el-row>
+                <el-row>
+                    <el-col :span="12">
+                        <el-form-item label="公告号" class="verify" verify VerifyModelCode prop="modelCode" :label-width="formLabelWidth">
+                            <el-input class="user_input_width" v-model="form.modelCode" auto-complete="off" placeholder="请输入..." clearable></el-input>
+                        </el-form-item>
+                    </el-col>
+                    <el-col :span="12">
+                        <el-form-item label="车辆高度" verify can-be-empty VerifyNum prop="carHeigth" :label-width="formLabelWidth">
+                            <el-input class="user_input_width" v-model.number="form.carHeigth" auto-complete="off" placeholder="请输入..." clearable></el-input>
+                        </el-form-item>
+                    </el-col>
+                </el-row>
+                <el-row>
+                    <el-col :span="12">
+                        <el-form-item label="公告批次" class="verify" verify VerifyNoticeBatchno prop="noticeBatchno" :label-width="formLabelWidth">
+                            <el-input class="user_input_width" v-model="form.noticeBatchno" auto-complete="off" placeholder="请输入..." clearable></el-input>
+                        </el-form-item>
+                    </el-col>
+
+                </el-row>
+                <el-row class="editiconshow" :span="24">
+                    <el-form-item class="verify" label="图标设置" :label-width="formLabelWidth">
+                            <a @click="carModelIconSelectEvent" :style="{'color':'#409EFF','cursor':'pointer', marginRight: '20px', textDecoration: 'underline'}">选择图标</a>
+                            <img src="">
+                            <img src="">
+                            <img src="">
+                    </el-form-item>
+                </el-row>
+                <el-row class="user_dailog_form">
+                    <el-col :span="24">
+                        <el-form-item label="备注" prop="remark" :label-width="formLabelWidth">
+                            <el-input :maxlength="100" type="textarea" v-model="form.remark" placeholder="请输入..." :style="{'width':'526px'}" clearable></el-input>
+                        </el-form-item>
+                    </el-col>
+                </el-row>
+            </el-form>
+            <div slot="footer" class="foot_botton_posi">
+                <el-button @click="closeWindow('form')" size="mini" v-bind:class="[isshow ? 'showContent borderShow' : 'hideContent']">{{hideText}}</el-button>
+                <el-button type="success" size="mini" :disabled="btnSelect == 'edit' && !isEditPermisson" @click="editSaveEvent('form')" v-bind:class="[isshow ? 'showContent' : 'hideContent']">{{showText}}</el-button>
+            </div>
+        </el-dialog>
+        <!-- 零部件配置弹窗 -->
+        <el-dialog class="carModel_partsWin" :close-on-click-modal="false" v-drag="{width:710,height:372}" :title="winTitle" @close="closeWindow('form')" :visible.sync="partsDialogFormVisible" width="800px">
+            <el-header>
+                <el-row :span="24" class="btnGroupRow">
+                    <el-col :span="6" >
+                        <el-button prop='delete' v-hasPermisson="'车型管理_删除零部件'" type="danger" icon="el-icon-delete" @click="partsDeleteBtn" size="mini">删除</el-button>
+                        <!-- <el-button prop='search' type="success" icon="el-icon-search" @click="searchBtn" size="mini">查看</el-button> -->
+                    </el-col>
+                    <el-col :span="8.5" :style="{'float':'right','margin-right':'0px'}">
+                        <el-button prop='import' v-hasPermisson="'车型管理_导入零部件'" class="myBtnType_Cyan" icon="el-icon-upload2" plain @click="partsImportBtn" size="mini">导入</el-button>
+                        <el-button prop='export' v-hasPermisson="'车型管理_导出零部件'" class="myBtnType_Cyan" icon="el-icon-upload2" plain @click="partsExportBtn" size="mini">导出</el-button>
+                        <el-button prop='add' v-hasPermisson="'车型管理_新增零部件'" type="primary" icon="el-icon-plus" @click="partsAddBtn" size="mini">新增</el-button>
+                    </el-col>
+                </el-row>
+            </el-header>
+            <el-main>
+                <el-table @row-click="rowClickEvent" :model="form" @selection-change="partstableSelectChange"  :data="partsVehicleManageTable" height="500" tooltip-effect="dark" :stripe="true" size="mini" highlight-current-row :border="true">
+                    <el-table-column :show-overflow-tooltip="showTipFlg" width="34" header-align="left" type="selection" label=""></el-table-column>
+                    <el-table-column :show-overflow-tooltip="showTipFlg" width="50" header-align="left" type="index" label="序号"></el-table-column>
+                    <el-table-column :show-overflow-tooltip="showTipFlg" header-align="left" prop="partsNo" label="型号">
+                        <template slot-scope="scope">
+                            <span v-show="isEditPermissonParts" @click="carModelPartsEdit(scope.row)" class="el-icon-edit" :style="{'color':'#409EFF','cursor':'pointer'}">{{ scope.row.partsNo }}</span>
+                            <span v-show="!isEditPermissonParts" @click="carModelPartsEdit(scope.row)" class="fa fa-book" v-bind:style="{color:'#409EFF',cursor:'pointer'}">{{ scope.row.partsNo }}</span>
+                        </template>
+                    </el-table-column>
+                    <el-table-column :show-overflow-tooltip="showTipFlg" header-align="left" prop="partsName" label="名称"></el-table-column>
+                    <el-table-column :show-overflow-tooltip="showTipFlg" header-align="left" prop="partsBrand" label="品牌"></el-table-column>
+                    <el-table-column :show-overflow-tooltip="showTipFlg" header-align="left" prop="supplierName" label="供应商名称"></el-table-column>
+                </el-table>
+            </el-main>
+            <el-footer class="footer_page">
+                <el-row :span="24">
+                    <el-col :span="16" :offset="4">
+                        <el-pagination @size-change="partshandleSizeChange" @current-change="partshandleCurrentChange" :current-page="partscurrentPage" :page-sizes="[15, 20, 30, 50]" :page-size="partspageSize" layout="total, sizes, prev, pager, next, jumper" :total="partsTotalPages" background>
+                        </el-pagination>
+                    </el-col>
+                </el-row>
+            </el-footer>
+
+        </el-dialog>
+        <!-- 零部件弹窗内部的弹窗 -->
+        <!-- 新增 -->
+        <el-dialog v-drag="{width:710,height:372}" :close-on-click-modal="false" :title="winTitle" @close="closeWindow('partsForm')" :visible.sync="partsAddDialogFormVisible" width="740px">
+           <el-form :model="partsForm" :disabled="PartsBtnSelect == 'edit' && !isEditPermissonParts" ref="partsForm" :rules="rules" :inline="true" size="small">
+                <el-row>
+                    <el-col :span="12">
+                        <el-form-item label="型号" prop="partsNo" :label-width="formLabelWidth">
+                            <el-input v-focus="btnSelect == 'add'" :maxlength="40" class="user_input_width" v-model="partsForm.partsNo" auto-complete="off" placeholder="请输入..." clearable></el-input>
+                        </el-form-item>
+                    </el-col>
+                    <el-col :span="12">
+                        <el-form-item label="品牌" class="verify" verify VerifyNumABCZh prop="partsBrand" :label-width="formLabelWidth">
+                            <el-input class="user_input_width" :maxlength="40" v-model="partsForm.partsBrand"  auto-complete="off" placeholder="请输入..." clearable></el-input>
+                        </el-form-item>
+                    </el-col>
+                </el-row>
+                <el-row>
+                    <el-col :span="12">
+                        <el-form-item label="名称" class="verify" verify VerifyNumABCZh prop="partsName" :label-width="formLabelWidth">
+                            <el-input class="user_input_width" :maxlength="40" v-model="partsForm.partsName" auto-complete="off" placeholder="请输入..." clearable></el-input>
+                        </el-form-item>
+                    </el-col>
+                    <el-col :span="12">
+                        <el-form-item label="供应商名称" class="verify" verify VerifyNumABCZh prop="supplierCode" :label-width="formLabelWidth">
+                            <el-select  v-model="partsForm.supplierCode" :style="{'width':'194px'}" placeholder="请选择...">
+                                <el-option :label="item.name" :key="item.name" v-for="item in supplierCodeChoose" :value="item.factoryId"></el-option>
+                            </el-select>
+                        </el-form-item>
+                    </el-col>
+                </el-row>
+
+            </el-form>
+            <div slot="footer">
+                <el-button @click="closeWindow('partsForm')" class="dialogClose" size="mini">取 消</el-button>
+                <el-button type="success" :disabled="PartsBtnSelect == 'edit' && !isEditPermissonParts" @click="partsSaveVehicleEvent('partsForm')" size="mini">保 存</el-button>
+            </div>
+        </el-dialog>
+        <!-- 导入 -->
+        <el-dialog id="vehicleImportWin" class="import_win" :close-on-click-modal="false" v-drag="{width:740,height:372}" :title="winTitle" @close="closeImportWindow" :visible.sync="partsImportDialogFormVisible" width="640px">
+            <el-form class="import_win_form" :inline="true">
+                <el-row>
+                    <el-col :span="24">
+                        <el-form-item>
+                            <el-button class="importContent" size="mini" @click="partsDownImportExcel">下载模板</el-button>
+                        </el-form-item>
+                    </el-col>
+                </el-row>
+                <el-row>
+                    <el-col :span="24">
+                        <el-form-item>
+                            <el-upload
+                                class="upload-demo"
+                                drag
+                                :action="partsUpLodImportBaseUrl"
+                                :file-list="partsImportFileList"
+                                :data="partsUpLodImportParamObj"
+                                name="partsTemplate"
+                                :on-change="partsImportFileChange"
+                                :on-success="partsCheckImport"
+                                accept="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel,.csv,text/plain"
+                                >
+                                <i class="el-icon-upload"></i>
+                                <div class="el-upload__text">将文件拖到此处，或<em>点击上传</em></div>
+                                <!-- <div class="el-upload__tip" slot="tip">只能上传jpg/png文件，且不超过500kb</div> -->
+                            </el-upload>
+                        </el-form-item>
+                    </el-col>
+                </el-row>
+
+            </el-form>
+            <div slot="footer" class="dialog-footer">
+                <el-button size="mini" class="dialogClose" @click="closeImportWindow">取 消</el-button>
+                <el-button size="mini" type="success" @click="partsImportSaveEvent">保 存</el-button>
+            </div>
+        </el-dialog>
+    </el-container>
+</template>
+
+<script>
+    import api from 'api/vehicleManage'
+    import vapi from 'api/terminal'
+    import axios from 'axios'
+    const tableCellKeyVal = {
+        "modelName": '车型名称',
+        "modelCode": "公告号",
+        "noticeBatchno": "公告批次",
+        "energyTypeStr": "能源类型",
+        "carLength": "车辆长度",
+        "carWidth": "车辆宽度",
+        "carHeigth": "车辆高度",
+        "parts": "零部件",
+        "remark": "简介",
+        "updateTime": "更新时间",
+        "createUserName": "创建人"
+    }
+
+    export default {
+        name: 'vehicleManage',
+        data() {
+            return {
+                isshow: true,
+                hideText: '取 消',
+                showText: '保 存',
+                forbidden: false,
+                baseURL: axios.defaults.baseURL,
+                iconAddDialogVisible: false,
+                iconEditDialogVisible: false,
+                btnSelect: "",
+                drivingImageFlg: false,
+                stopImageFlg: false,
+                offlineImageFlg: false,
+                addSycdrivingImageFlg: false,
+                addSycstopImageFlg: false,
+                addSycofflineImageFlg: false,
+
+                AdddrivingImageFlg: false,
+                AddstopImageFlg: false,
+                AddofflineImageFlg: false,
+                editdrivingImageFlg: false,
+                editstopImageFlg: false,
+                editofflineImageFlg: false,
+                drivingImagefileList: [],
+                stopImagefileList: [],
+                offlineImagefileList: [],
+                drivingImagefileListedit: [],
+                stopImagefileListedit: [],
+                offlineImagefileListedit: [],
+                iconManageSelect: "",
+                iconSelect: "",
+                iconSelectSelect: "",
+                partspageSize: 15,
+                partsTotalPages: 5,
+                upIndex: 0,
+                upFormData: null,
+                PartsBtnSelect: "",
+                iconManageDialogVisible: false,
+                iconSelectDialogVisible: false,
+                uploadIconBaseUrl: '',
+                iconList:[],
+                checkList: [],
+                addIconUploadParam: {
+                    width: 32,
+                    height: 32,
+                    folderName: ""
+                },
+                editParamdriving: {
+                    type: 0,
+                    width: 32,
+                    height: 32,
+                    folderName: ''
+                },
+                editParamstop: {
+                    type: 1,
+                    width: 32,
+                    height: 32,
+                    folderName: ''
+                },
+                editParamoffline: {
+                    type: 2,
+                    width: 32,
+                    height: 32,
+                    folderName: ''
+                },
+                checkAll: true,
+                isIndeterminate: false,
+                tableCellList: Object.keys(tableCellKeyVal),
+                tableCellKeyVal: tableCellKeyVal,
+                partsUpLodImportParamObj: {modelId: ""},
+                isEditPermisson: this.GLOBAL.isHasPermisson('车型管理_修改'),
+                isEditPermissonParts: this.GLOBAL.isHasPermisson('车型管理_修改零部件'),
+                energyTypeChoose: [{  // 获取能源类型
+                    id: 1,
+                    name: '传统车'
+                }, {
+                    id: 2,
+                    name: '新能源'
+                }],
+                wrapHeight: 802, //功能模块可视高度
+                formLabelWidth: '92px',
+                tableSelectData: [], //表格数据是否被选中
+                partstableSelectData: [],
+                // 分页
+                currentPage: 1,
+                partscurrentPage: 1,
+                pageSize: 15,
+                TotalPages: 200,
+                vehicleManageSearParam: {    //车型管理搜索框
+                    pageNum: '',
+                    pageSize: '',
+                    modelName: '',
+                    modelCode: '',
+                    noticeBatchno: ''
+                },
+                // 表格类
+                vehicleManageTab: [],  //表格数据
+                partsVehicleManageTable: [],
+                partsImportFileList: [], // 导入表格数据
+                partsUpLodImportBaseUrl: '', //零部件上传
+                supplierCodeChoose: [], //终端生产厂商下拉框
+                tableHeight: '',  //表格高度
+                showTipFlg: true, //表格是否显示tip
+                form: {
+                    modeId: '',
+                    modelName: '',
+                    modelCode: '',
+                    noticeBatchno: '',
+                    energyTypeStr: '',
+                    carLength: '',
+                    carWidth: '',
+                    carHeigth: '',
+                    smalliconDriving: 'default',
+                    smalliconOffline: 'default',
+                    smalliconStop: 'default',
+                    remark: ''
+                    // modelId: ''
+                },
+                iconType: "",
+                partsForm: {
+                    partsNo: '',
+                    modelId: "",
+                    partsName: '',
+                    partsBrand: '',
+                    supplierCode: '',
+                    partsId: "",
+                    supplierName: ''
+                },
+                partsModeId:'',
+                addDialogFormVisible: false,
+                editDialogFormVisible: false,
+                partsDialogFormVisible: false,
+                partsAddDialogFormVisible: false,
+                partsImportDialogFormVisible: false,
+                winTitle: '新增车型',
+                rules: {
+                    energyType: [
+                        {required: true, message: '请选择终能源类型', trigger: 'blur'}
+                    ],
+                    partsNo:[
+                        {required: true, message:'请输入零部件型号', trigger: 'blur'},
+                        {min: 0, max: 40, message: '最多可输入 40 个字符', trigger: 'blur'}
+                    ],
+                    partsBrand: [
+                        {required: true, message:'请输入相应的品牌', trigger: 'blur'},
+                        {min: 0, max: 40, message: '最多可输入 40 个字符', trigger: 'blur'}
+                    ],
+                    partsName: [
+                        {required: true, message:'请输入相应的名称', trigger: 'blur'},
+                        {min: 0, max: 40, message: '最多可输入 40 个字符', trigger: 'blur'}
+
+                    ],
+                    supplierCode: [
+                         {required: true, message:'请选择供应商名称', trigger: 'blur'},
+                         {min: 0, max: 40, message: '最多可输入 40 个字符', trigger: 'blur'}
+                    ],
+                    smalliconDriving: [
+                         {required: true, message:'请选择车型图标', trigger: 'blur'}
+                    ],
+                    smalliconOffline: [
+                         {required: true, message:'请选择车型图标', trigger: 'blur'}
+                    ],
+                    smalliconStop: [
+                         {required: true, message:'请选择车型图标', trigger: 'blur'}
+                    ]
+
+                }
+            }
+        },
+        created() {
+            this.wrapHeight = this.$store.state.home.settings.deviceHeight - 22;
+            this.tableHeight = this.wrapHeight - 205;
+            this.upLodImportBaseUrl = axios.defaults.baseURL + '/carModelParts/getPartsExcelData'
+            this.partsUpLodImportBaseUrl = axios.defaults.baseURL + '/carModelParts/getPartsExcelData'
+            this.uploadIconBaseUrl = axios.defaults.baseURL + '/carModels/iconBatch'
+            this.uploadIconEditBaseUrl = axios.defaults.baseURL + '/carModels/icon'
+
+            this.GLOBAL.getTableCellSetList('vehicleManage', this.tableCellList).then((res) => {
+                this.checkList = res
+            })
+
+            this.getTableData();
+            this.getFactoryName();
+            this.getIconList()
+
+        },
+        methods: {
+            iconSelectWinOpenEvent(){
+                if(this.iconSelect == ""){
+                    this.iconSelectSelect = this.iconList[0].name;
+                }else{
+                    this.iconSelectSelect = this.iconSelect;
+                }
+            },
+            editdrivingIconSuccessCB(response){
+                if(response.code != 200){
+                    this.$message({
+                        type: 'error',
+                        duration: 1500,
+                        showClose: true,
+                        message: response.message
+                    });
+                    this.drivingImagefileListedit = []
+                }else{
+                    this.iconEditDialogVisible = false
+                    this.getIconList()
+                    this.$message({
+                        type: 'success',
+                        duration: 1500,
+                        showClose: true,
+                        message: '修改图标成功'
+                    });
+                }
+            },
+            editStopIconSuccessCB(response){
+                if(response.code != 200){
+                    this.$message({
+                        type: 'error',
+                        duration: 1500,
+                        showClose: true,
+                        message: response.message
+                    });
+                    this.stopImagefileListedit = []
+                }else{
+                    this.iconEditDialogVisible = false
+                    this.getIconList()
+                    this.$message({
+                        type: 'success',
+                        duration: 1500,
+                        showClose: true,
+                        message: '修改图标成功'
+                    });
+                }
+            },
+            editOfflineIconSuccessCB(response){
+                if(response.code != 200){
+                    this.$message({
+                        type: 'error',
+                        duration: 1500,
+                        showClose: true,
+                        message: response.message
+                    });
+                    this.offlineImagefileListedit = []
+                }else{
+                    this.iconEditDialogVisible = false
+                    this.getIconList()
+                    this.$message({
+                        type: 'success',
+                        duration: 1500,
+                        showClose: true,
+                        message: '修改图标成功'
+                    });
+                }
+            },
+            iconManageAdd(){
+                this.iconUpBtnEvent()
+            },
+            editIconWinClose(){
+                this.drivingImagefileListedit = []
+                this.stopImagefileListedit = []
+                this.offlineImagefileListedit = []
+
+                this.editdrivingImageFlg = false
+                this.editstopImageFlg = false
+                this.editofflineImageFlg = false
+
+            },
+            editIconTypeCode(val){
+                if(val == 1){
+                    this.editdrivingImageFlg = true
+                }else if(val == 2){
+                    this.editstopImageFlg = true
+                }else{
+                    this.editofflineImageFlg = true
+                }
+            },
+            iconManageDelete(){
+                if(this.iconManageSelect == ""){
+                    this.$notify({
+                        title: '警告',
+                        message: '请选择图标进行操作',
+                        type: 'error',
+                        offset: 200,
+                        duration: 1500
+                    });
+                }else{
+                    var paramArr = []
+
+                    paramArr.push(this.iconManageSelect)
+                    var obj = {
+                        folders: JSON.stringify(paramArr)
+                    }
+
+                    api.deleteIcon(obj).then(() =>{
+                        this.$message({
+                            type: 'success',
+                            duration: 1500,
+                            showClose: true,
+                            message: "删除成功"
+                        });
+                        this.getIconList()
+                    }).catch(err =>{
+                        this.$message({
+                            type: 'error',
+                            duration: 1500,
+                            showClose: true,
+                            message: err.message
+                        });
+                    })
+                }
+            },
+            offlineIconEditSuccessCB(){
+
+            },
+            editSureBtn(){
+
+                if(this.editdrivingImageFlg){
+                    this.$refs.drivingImageedit.submit()
+                }
+                if(this.editstopImageFlg){
+                    this.$refs.stopImageedit.submit()
+                }
+                if(this.editofflineImageFlg){
+                    this.$refs.offlineImageedit.submit()
+                }
+
+                if(!this.editdrivingImageFlg && !this.editstopImageFlg && !this.editofflineImageFlg){
+                    this.$message({
+                        type: 'success',
+                        duration: 1500,
+                        showClose: true,
+                        message: '修改图标成功'
+                    });
+                    this.iconEditDialogVisible = false
+                }
+
+                // this.getIconList()
+                // this.iconEditDialogVisible = false
+            },
+            iconManageEdit(){
+                if(this.iconManageSelect == ""){
+                    this.$notify({
+                        title: '警告',
+                        message: '请选择图标进行操作',
+                        type: 'error',
+                        offset: 200,
+                        duration: 1500
+                    });
+                }else{
+                    this.iconEditDialogVisible = true
+                    this.editParamdriving.folderName = this.iconManageSelect
+                    this.editParamstop.folderName = this.iconManageSelect
+                    this.editParamoffline.folderName = this.iconManageSelect
+                }
+
+            },
+            addUploadBtnType(val){
+                if(val == 1){
+                    this.AdddrivingImageFlg = true
+                    this.addSycdrivingImageFlg = false
+                    this.drivingImageFlg = false
+
+                }
+                if(val == 2){
+                    this.AddstopImageFlg = true
+                    this.addSycstopImageFlg = false
+                    this.stopImageFlg = false
+                }
+                if(val == 3){
+                    this.AddofflineImageFlg = true
+                    this.addSycofflineImageFlg = false
+                    this.offlineImageFlg = false
+                }
+            },
+            addSureBtn(){
+                this.addSycofflineImageFlg = false
+                this.offlineImageFlg = false
+                this.addSycstopImageFlg = false
+                this.stopImageFlg = false
+                this.addSycdrivingImageFlg = false
+                this.drivingImageFlg = false
+                if(this.AdddrivingImageFlg && this.AddstopImageFlg && this.AddofflineImageFlg){
+                    this.$refs.drivingImage.submit()
+                    this.$refs.stopImage.submit()
+                    this.$refs.offlineImage.submit()
+                }else{
+                    this.$message({
+                        type: 'error',
+                        duration: 1500,
+                        showClose: true,
+                        message: '请同时上传三个图标文件'
+                    });
+                }
+
+            },
+            addIconDriEvent(){
+                this.AdddrivingImageFlg = false
+            },
+            addIconStopEvent(){
+                this.AddstopImageFlg = false
+            },
+            addIconOfflineEvent(){
+                this.AddofflineImageFlg = false
+            },
+            IconEditdrivremove(){
+                this.editdrivingImageFlg = false
+            },
+            IconEditstopremove(){
+                this.editstopImageFlg = false
+            },
+            IconEditofflineremove(){
+                this.editofflineImageFlg = false
+            },
+            IconEditSuccessCB(response){
+                if(response.code != 200){
+                    this.$message({
+                        type: 'error',
+                        duration: 1500,
+                        showClose: true,
+                        message: response.message
+                    });
+                }else{
+                    this.$message({
+                        type: 'success',
+                        duration: 1500,
+                        showClose: true,
+                        message: '修改图标成功'
+                    });
+                }
+            },
+            deleteIconAdderr(){
+                if(this.addSycdrivingImageFlg && this.addSycofflineImageFlg && this.addSycofflineImageFlg){
+                    if(!this.drivingImageFlg || !this.stopImageFlg || !this.offlineImageFlg){
+                        var data = [this.addIconUploadParam.folderName];
+
+                        api.deleteIcon({folders: JSON.stringify(data)}).then(() =>{
+                            this.getIconList()
+                        })
+                    }
+                }
+            },
+            drivingIconSuccessCB(response){
+                this.addSycdrivingImageFlg = true
+                if(response.code != 200){
+                    this.$message({
+                        type: 'error',
+                        duration: 1500,
+                        showClose: true,
+                        message: response.message
+                    });
+                    this.drivingImagefileList = []
+                    this.stopImagefileList = []
+                    this.offlineImagefileList = []
+                    this.AdddrivingImageFlg = false
+
+                }else{
+                    this.drivingImageFlg = true
+                    if(this.drivingImageFlg && this.stopImageFlg && this.offlineImageFlg){
+                        this.iconAddDialogVisible = false
+                        this.getIconList()
+                        this.$message({
+                            type: 'success',
+                            duration: 1500,
+                            showClose: true,
+                            message: '新增图标成功'
+                        });
+                    }
+                }
+
+                this.deleteIconAdderr()
+            },
+            stopIconSuccessCB(response){
+                this.addSycstopImageFlg = true
+                if(response.code != 200){
+                    this.$message({
+                        type: 'error',
+                        duration: 1500,
+                        showClose: true,
+                        message: response.message
+                    });
+                    this.drivingImagefileList = []
+                    this.stopImagefileList = []
+                    this.offlineImagefileList = []
+                    this.AddstopImageFlg = false
+                }else{
+                    this.stopImageFlg = true
+                    if(this.drivingImageFlg && this.stopImageFlg && this.offlineImageFlg){
+                        this.iconAddDialogVisible = false
+                        this.getIconList()
+                        this.$message({
+                            type: 'success',
+                            duration: 1500,
+                            showClose: true,
+                            message: '新增图标成功'
+                        });
+                    }
+                }
+                this.deleteIconAdderr()
+            },
+            offlineIconSuccessCB(response){
+                this.addSycofflineImageFlg = true
+                if(response.code != 200){
+                    this.$message({
+                        type: 'error',
+                        duration: 1500,
+                        showClose: true,
+                        message: response.message
+                    });
+                    this.drivingImagefileList = []
+                    this.stopImagefileList = []
+                    this.offlineImagefileList = []
+                    this.AddofflineImageFlg = false
+                }else{
+                    this.offlineImageFlg = true
+                    if(this.drivingImageFlg && this.stopImageFlg && this.offlineImageFlg){
+                        this.iconAddDialogVisible = false
+                        this.getIconList()
+                        this.$message({
+                            type: 'success',
+                            duration: 1500,
+                            showClose: true,
+                            message: '新增图标成功'
+                        });
+                    }
+                }
+                this.deleteIconAdderr()
+            },
+            iconAddWinCloseEvent(){
+                this.drivingImagefileList = []
+                this.stopImagefileList = []
+                this.offlineImagefileList = []
+                this.AdddrivingImageFlg  = false
+                this.AddstopImageFlg = false
+                this.AddofflineImageFlg = false
+                this.addSycdrivingImageFlg = false
+                this.addSycstopImageFlg = false
+                this.addSycofflineImageFlg = false
+
+            },
+            setUuid(len, radix) {
+                var chars = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz'.split('');
+                var uuid = [];
+
+                var radix1 = radix || chars.length;
+
+                if (len) {
+                    // Compact form
+                    for (var i = 0; i < len; i++) {
+                        uuid[i] = chars[0 | Math.random() * radix1];
+                    }
+                } else {
+                    // rfc4122, version 4 form
+                    var r;
+
+                    // rfc4122 requires these characters
+                    uuid[8] = uuid[13] = uuid[18] = uuid[23] = '-';
+                    uuid[14] = '4';
+
+                    // Fill in random data. At i==19 set the high bits of clock sequence as
+                    // per rfc4122, sec. 4.1.5
+                    for (var j = 0; j < 36; j++) {
+                        if (!uuid[j]) {
+                            r = 0 | Math.random() * 16;
+                            uuid[j] = chars[i == 19 ? r & 0x3 | 0x8 : r];
+                        }
+                    }
+                }
+
+                return uuid.join('');
+            },
+            iconUpBtnEvent(){
+                this.iconAddDialogVisible = true
+                this.addIconUploadParam.folderName = this.setUuid(32, 16)
+            },
+            iconSelectWinSave(){
+                this.iconSelect = this.iconSelectSelect;
+                this.form.smalliconDriving = this.iconSelectSelect
+                this.form.smalliconOffline = this.iconSelectSelect
+                this.form.smalliconStop = this.iconSelectSelect
+
+                $('.iconshow img').eq(0).attr('src', this.baseURL + '/carmodelicon/' + this.iconSelectSelect + '/drivingImage.png')
+                $('.iconshow img').eq(1).attr('src', this.baseURL + '/carmodelicon/' + this.iconSelectSelect + '/stopImage.png')
+                $('.iconshow img').eq(2).attr('src', this.baseURL + '/carmodelicon/' + this.iconSelectSelect + '/offlineImage.png')
+                $('.editiconshow img').eq(0).attr('src', this.baseURL + '/carmodelicon/' + this.iconSelectSelect + '/drivingImage.png')
+                $('.editiconshow img').eq(1).attr('src', this.baseURL + '/carmodelicon/' + this.iconSelectSelect + '/stopImage.png')
+                $('.editiconshow img').eq(2).attr('src', this.baseURL + '/carmodelicon/' + this.iconSelectSelect + '/offlineImage.png')
+
+
+                this.iconSelectDialogVisible = false
+            },
+            carModelIconSelectEvent(){
+                this.iconSelectDialogVisible = true
+            },
+            iconManageWinOpenEvent(){
+                this.iconManageSelect = '';
+            },
+            getIconList(){
+                api.getIconList().then((response) =>{
+                    if(response.data instanceof Array){
+                        this.iconList = response.data
+                    }
+                }).catch(err =>{
+                    this.$message({
+                        type: 'error',
+                        duration: 1500,
+                        showClose: true,
+                        message: err.message
+                    });
+                })
+            },
+            iconManageEvent(){
+                this.iconManageDialogVisible = true
+            },
+            tableCellCloseEvent(){
+                this.GLOBAL.tableCellCloseEvent('vehicleManage', this.tableCellKeyVal, this.checkList)
+            },
+            isTableCellShow(val){
+                if(this.checkList.indexOf(val) > -1){
+                    return true
+                }
+                return false
+            },
+            handleCheckAllChange(val){
+                this.checkList = val ? this.tableCellList : [];
+                this.isIndeterminate = false;
+                var that = this
+
+                window.setTimeout(function(){
+                    $('#vehicleManageWrap .el-table__body-wrapper').height(that.tableHeight - 40)
+                }, 200)
+            },
+            handleCheckGroupChange(value){
+                let checkedCount = value.length;
+
+                this.checkAll = checkedCount === this.tableCellList.length;
+                this.isIndeterminate = checkedCount > 0 && checkedCount < this.tableCellList.length;
+                var that = this
+
+                window.setTimeout(function(){
+                    $('#vehicleManageWrap .el-table__body-wrapper').height(that.tableHeight - 40)
+                }, 200)
+            },
+            //关闭弹窗
+            closeWindow(formName) {
+                this.addDialogFormVisible = false;
+                this.editDialogFormVisible = false;
+                this.partsAddDialogFormVisible = false;
+                this.$refs[formName].resetFields();
+                for(var p in this.form){
+                    this.form[p] = "";
+                }
+
+                for(var tt in this.partsForm){
+                    if(tt != "modelId"){
+                        this.partsForm[tt] = ""
+                    }
+                }
+                this.$refs.vehicleManageTable.clearSelection()
+
+            },
+            carModelPartsEdit(row){
+
+                this.PartsBtnSelect = "edit"
+                this.partsForm.partsNo = row.partsNo
+                // this.partsForm.modelId = row.modelId
+                this.partsForm.partsName = row.partsName
+                this.partsForm.partsBrand = row.partsBrand
+                this.partsForm.supplierCode = row.supplierCode
+                this.partsForm.supplierName = row.supplierName
+                this.partsForm.partsId = row.partsId
+
+
+                this.winTitle = '修改零部件';
+                this.partsAddDialogFormVisible = true;
+
+            },
+            // 分页
+            handleSizeChange(val) {
+                this.pageSize = val;
+                this.getTableData();
+            },
+            partshandleSizeChange(val) {
+                this.partspageSize = val;
+            },
+            partshandleCurrentChange(val) {
+                this.partscurrentPage = val;
+            },
+
+            handleCurrentChange(val) {
+                this.currentPage = val;
+                this.getTableData();
+            },
+           //触发点击不同的表格项获取当前
+            tableSelectChange(val){
+                this.tableSelectData = val;
+            },
+            partstableSelectChange(val){
+                this.partstableSelectData = val;
+            },
+           //判断当前表格是否被选中
+            isSelectTableData(){
+                var seletLeng = this.tableSelectData.length;
+
+                if(seletLeng == 0){
+                    this.$notify({
+                        title: '警告',
+                        message: '请选择表格数据进行操作',
+                        type: 'error',
+                        offset: 200,
+                        duration: 1500
+                    });
+                    return false;
+                }
+                return true;
+            },
+            isSelectPartsTableData(){
+                var seletLeng = this.partstableSelectData.length;
+
+                if(seletLeng == 0){
+                    this.$notify({
+                        title: '警告',
+                        message: '请选择表格数据进行操作',
+                        type: 'error',
+                        offset: 200,
+                        duration: 1500
+                    });
+                    return false;
+                }
+                return true;
+            },
+            cellClickEvent(row){
+                var seletData = row;
+
+                // if(column.property == "modelName"){
+                if(this.$refs.editForm){
+                    this.$refs.editForm.resetFields()
+                }
+                this.editDialogFormVisible = true;
+                this.winTitle = "修改车型信息";
+                this.btnSelect = "edit"
+                this.isshow = true;
+                this.forbidden = false;
+                this.form.modeId = seletData.modeId;
+                this.form.modelName = seletData.modelName;
+                this.form.modelCode = seletData.modelCode;
+                this.form.noticeBatchno = seletData.noticeBatchno;
+                this.form.energyType = seletData.energyType;
+                this.form.carLength = seletData.carLength;
+                this.form.carWidth = seletData.carWidth;
+                this.form.carHeigth = seletData.carHeigth;
+                this.form.remark = seletData.remark;
+                this.form.smalliconDriving = seletData.smalliconDriving;
+                this.form.smalliconStop = seletData.smalliconDriving;
+                this.form.smalliconOffline = seletData.smalliconDriving;
+
+                this.iconSelect = seletData.smalliconDriving;
+                this.iconSelectSelect = seletData.smalliconDriving
+
+                this.$nextTick(() => {
+                    $('.editiconshow img').eq(0).attr('src', this.baseURL + '/carmodelicon/' + this.iconSelectSelect + '/drivingImage.png')
+                    $('.editiconshow img').eq(1).attr('src', this.baseURL + '/carmodelicon/' + this.iconSelectSelect + '/stopImage.png')
+                    $('.editiconshow img').eq(2).attr('src', this.baseURL + '/carmodelicon/' + this.iconSelectSelect + '/offlineImage.png')
+                })
+
+                // }
+                // else if(column.property == 'parts'){
+                    // this.partsDialogFormVisible = true;
+                    // this.winTitle = '零部件信息';
+                // }
+            },
+            // 点击选中行
+            rowClickEvent(row){
+                this.$refs.vehicleManageTable.toggleRowSelection(row);
+            },
+            // 获取表格数据
+            getTableData() {
+                var data = {
+                    pageNum: this.currentPage,
+                    pageSize: this.pageSize,
+                    modelName: this.vehicleManageSearParam.modelName,
+                    modelCode: this.vehicleManageSearParam.modelCode,
+                    noticeBatchno: this.vehicleManageSearParam.noticeBatchno
+                }
+
+                api.getVehicleTabList(data).then((response) =>{
+                    this.TotalPages = response.data.total;
+                    this.vehicleManageTab = response.data.list;
+                }).catch(err =>{
+                    this.$message({
+                        type: 'error',
+                        duration: 1500,
+                        showClose: true,
+                        message: err.message
+                    });
+                })
+            },
+            //上传图片
+
+            // 新增
+            addBtn(){
+                this.winTitle = '新增车型';
+                this.btnSelect = "add"
+                if(this.$refs.addForm){
+                    this.$refs.addForm.resetFields();
+                }
+                this.form.smalliconDriving = "default"
+                this.form.smalliconStop = "default"
+                this.form.smalliconOffline = "default"
+                this.addDialogFormVisible = true;
+                this.iconSelect = "";
+                this.$nextTick(() => {
+                    $('.iconshow img').eq(0).attr('src', this.baseURL + '/carmodelicon/default/drivingImage.png')
+                    $('.iconshow img').eq(1).attr('src', this.baseURL + '/carmodelicon/default/stopImage.png')
+                    $('.iconshow img').eq(2).attr('src', this.baseURL + '/carmodelicon/default/offlineImage.png')
+                })
+            },
+            // 新增保存
+            addSaveVehicleEvent(formName){
+                this.$refs[formName].validate((valid) => {
+                    if(valid) {
+                        api.addVehicle(this.form).then(() =>{
+                            this.addDialogFormVisible = false;
+                            this.getTableData();
+                            this.$message({
+                                type: 'success',
+                                duration: 1500,
+                                showClose: true,
+                                message: '添加成功'
+                            });
+                        }).catch(err =>{
+                            this.$message({
+                                type: 'error',
+                                duration: 1500,
+                                showClose: true,
+                                message: err.message
+                            });
+                        });
+                    }else {
+                        return false;
+                    }
+                })
+            },
+            //修改保存
+            editSaveEvent(formName){
+                this.$refs[formName].validate((valid) => {
+                    if(valid) {
+                        api.updateVehicle(this.form).then((response) =>{
+                            if (response.code === 200){
+                                this.editDialogFormVisible = false;
+                                this.getTableData();
+                                this.$message({
+                                    type: 'success',
+                                    duration: 1500,
+                                    showClose: true,
+                                    message: '修改成功'
+                                });
+                            }
+                        }).catch(err =>{
+                            this.$message({
+                                type: 'error',
+                                duration: 1500,
+                                showClose: true,
+                                message: err.message
+                            });
+                        });
+                    }else{
+                        return false;
+                    }
+                })
+            },
+            // 查看
+            searchBtn(){
+                this.winTitle = "查看车型管理信息"     //查看
+                this.searchEvent();
+            },
+            searchEvent(){
+                this.winTitle = "查看终端信息";
+                this.isshow = false;
+                this.forbidden = true;
+                var flg = this.isSelectTableData();
+
+                if(flg){
+                    var seletData = this.tableSelectData[this.tableSelectData.length - 1];
+
+                    this.form.modeId = seletData.modeId;
+                    this.form.modelName = seletData.modelName;
+                    this.form.modelCode = seletData.modelCode;
+                    this.form.noticeBatchno = seletData.noticeBatchno;
+                    this.form.energyType = seletData.energyType;
+                    this.form.carLength = seletData.carLength;
+                    this.form.carWidth = seletData.carWidth;
+                    this.form.carHeigth = seletData.carHeigth;
+                    this.form.remark = seletData.remark;
+                    this.editDialogFormVisible = true;
+                    this.isshow = false;
+                }
+
+            },
+            // 删除
+            deleteBtn(){
+                this.deleteEvent();
+            },
+            deleteEvent(){
+                this.isshow = true;
+                this.forbidden = true;
+                var flg = this.isSelectTableData();
+
+                if(flg) {
+                    this.$confirm('此操作将永久删除该文件，是否继续？', '提示', {
+                        confirmButtonText: '确定',
+                        cancelButtonText: '取消',
+                        type: 'error'
+                    }).then(() =>{
+                        var ids = [];
+                        var seletData = this.tableSelectData;
+
+                        for(let item of seletData){
+                            ids.push(item.modeId);
+                        }
+                        api.vehicleDeleteTableData({"ids": JSON.stringify(ids)}).then(() =>{
+                            this.addDialogFormVisible = false;
+                            this.editDialogFormVisible = false;
+                            this.getTableData();
+                            this.$message({
+                                type: 'success',
+                                duration: 1500,
+                                showClose: true,
+                                message: '删除成功'
+                            });
+
+                        }).catch(err =>{
+                            this.$message({
+                                type: 'error',
+                                duration: 1500,
+                                showClose: true,
+                                message: err.message
+                            });
+                        })
+                    }).catch(() =>{
+                        this.$message({
+                            type: 'info',
+                            duration: 1500,
+                            showClose: true,
+                            message: '已取消删除'
+                        });
+                    })
+                }
+            },
+            // 导出*
+            exportBtn(){
+                this.exportEvent();
+            },
+            exportEvent(){
+                if(this.vehicleManageTab.length <= 0){
+                    this.$message({
+                        type: 'error',
+                        duration: 1500,
+                        showClose: true,
+                        message: '表格无数据'
+                    });
+                    return
+                }
+                var obj = {
+                    modelName: this.vehicleManageSearParam.modelName,
+                    modelCode: this.vehicleManageSearParam.modelCode,
+                    noticeBatchno: this.vehicleManageSearParam.noticeBatchno,
+                    headers: '车型名称,公告号,公关批次,能源类型,车辆长度,车辆宽度,车辆高度,简介,更新时间,创建人',
+                    fields: 'modelName,modelCode,noticeBatchno,energyType,carLength,carWidth,carHeigth,remark,updateTime,createUserName'
+                }
+                var dataStr = "";
+
+                for(var tt in obj){
+                    dataStr += tt + '=' + obj[tt] + '&'
+                }
+                window.location = axios.defaults.baseURL + '/carModels/download?' + dataStr
+
+            },
+/*****************************零部件配置************************************************************************************************************ */
+            openPartsWinEvent(row){
+                this.partsModeId = row.modeId
+                this.partsForm.modelId = row.modeId
+                this.partsDialogFormVisible = true;
+                this.winTitle = '零部件信息';
+                this.partscurrentPage = 1
+                this.partspageSize = 15
+
+                this.getPartsSetTabData()
+
+            },
+            getPartsSetTabData(){
+                var partsData = {
+                    modelId: this.partsModeId,
+                    pageNum: this.partscurrentPage,
+                    pageSize: this.partspageSize
+                };
+
+                api.getPartsSetTabList(partsData).then((response) =>{
+                    this.partsVehicleManageTable = response.data.list
+                    this.partsTotalPages = response.data.total
+
+                }).catch(err =>{
+                    this.$message({
+                        type: 'error',
+                        duration: 1500,
+                        showClose: true,
+                        message: err.message
+                    });
+                })
+            },
+            // 新增
+            partsAddBtn(){
+                this.winTitle = '新增零部件';
+                this.partsAddDialogFormVisible = true;
+                this.PartsBtnSelect = "add"
+            },
+            partsSaveVehicleEvent(formName){
+                if(this.PartsBtnSelect == "add"){
+                    this.partsAddSaveVehicleEvent(formName)
+                }
+                if(this.PartsBtnSelect == "edit"){
+                    this.partsEditSaveVehicleEvent(formName)
+                }
+            },
+            partsEditSaveVehicleEvent(formName){
+                this.$refs[formName].validate((valid) => {
+                    if(valid) {
+                        api.partsEditVehicle(this.partsForm).then(() =>{
+                            this.partsAddDialogFormVisible = false;
+                            this.$message({
+                                type: 'success',
+                                duration: 1500,
+                                showClose: true,
+                                message: '修改成功'
+                            });
+                            this.getPartsSetTabData()
+                        }).catch(err =>{
+                            this.$message({
+                                type: 'error',
+                                duration: 1500,
+                                showClose: true,
+                                message: err.message
+                            });
+                        });
+                    }else {
+                        return false;
+                    }
+                })
+            },
+            partsAddSaveVehicleEvent(formName){
+                this.$refs[formName].validate((valid) => {
+                    if(valid) {
+                        api.partsAddVehicle(this.partsForm).then(() =>{
+                            this.partsAddDialogFormVisible = false;
+                            this.$message({
+                                type: 'success',
+                                duration: 1500,
+                                showClose: true,
+                                message: '添加成功'
+                            });
+                            this.getPartsSetTabData()
+                        }).catch(err =>{
+                            this.$message({
+                                type: 'error',
+                                duration: 1500,
+                                showClose: true,
+                                message: err.message
+                            });
+                        });
+                    }else {
+                        return false;
+                    }
+                })
+            },
+            getFactoryName(){
+                var data = {
+                    factoryName: this.partsForm.supplierName
+                }
+
+                vapi.searchfactoryName(data).then((response) =>{
+                    this.supplierCodeChoose = response.data;
+                }).catch(err =>{
+                    this.$message({
+                        type: 'error',
+                        duration: 1500,
+                        showClose: true,
+                        message: err.message
+                    });
+                });
+            },
+            // 导入
+            partsImportBtn(){
+                this.winTitle = "导入零部件信息"
+                this.partsImportDialogFormVisible = true;
+                this.partsImportFileList = [];
+                this.partsUpLodImportParamObj = {
+                    modelId: this.partsModeId
+                }
+            },
+            //导入
+            partsDownImportExcel(){
+                window.location = axios.defaults.baseURL + '/common/downloadTemplate?templateName=carModelPartsTemplate.xls'
+            },
+            partsImportFileChange(file){
+                this.partsImportFileList = [];
+                this.partsImportFileList.push(file)
+            },
+            partsCheckImport(response){
+                if(response.code != '200'){
+                    this.partsImportFileList = [];
+                    this.$refs.upload.clearFiles();
+                    this.$message({
+                        type: 'error',
+                        duration: 1500,
+                        showClose: true,
+                        message: response.message
+                    });
+                    $('#vehicleImportWin .el-icon-close')[1].trigger('click')
+                }
+            },
+            closeImportWindow(){
+                this.partsImportDialogFormVisible = false
+            },
+            // 导入保存
+            partsImportSaveEvent(){
+                api.partsImportSaveVehicle().then(() =>{
+                    this.$message({
+                        type: 'success',
+                        duration: 1500,
+                        showClose: true,
+                        message: '保存成功'
+                    });
+                    this.partsImportDialogFormVisible = false
+                    this.getPartsSetTabData()
+
+                }).catch(err =>{
+                    this.$message({
+                        type: 'error',
+                        duration: 1500,
+                        showClose: true,
+                        message: err.message
+                    });
+                });
+
+            },
+            // 导出
+            partsExportBtn(){
+                this.partsExportEvent();
+            },
+            partsExportEvent(){
+                if(this.partsVehicleManageTable.length <= 0){
+                    this.$message({
+                        type: 'error',
+                        duration: 1500,
+                        showClose: true,
+                        message: '表格无数据'
+                    });
+                    return
+                }
+                var obj = {
+                    modelId: this.partsModeId,
+                    headers: '型号,名称,品牌,供应商名称',
+                    fields: 'partsNo,partsName,partsBrand,supplierName,'
+                }
+                var dataStr = "";
+
+                for(var tt in obj){
+                    dataStr += tt + '=' + obj[tt] + '&'
+                }
+                window.location = axios.defaults.baseURL + '/carModelParts/download?' + dataStr
+
+            },
+            // 删除
+            partsDeleteBtn(){
+                this.partsDeleteEvent();
+            },
+            partsDeleteEvent(){
+                var flg = this.isSelectPartsTableData();
+
+                if(flg) {
+                    this.$confirm('此操作将永久删除零部件信息，是否继续？', '提示', {
+                        confirmButtonText: '确定',
+                        cancelButtonText: '取消',
+                        type: 'error'
+                    }).then(() =>{
+                        var ids = [];
+                        var seletData = this.partstableSelectData;
+
+                        for(let item of seletData){
+                            ids.push(item.partsId);
+                        }
+                        api.partsVehicleDeleteTableData({"ids": JSON.stringify(ids)}).then(() =>{
+                            this.partsAddDialogFormVisible = false;
+                            this.$message({
+                                type: 'success',
+                                duration: 1500,
+                                showClose: true,
+                                message: '删除成功'
+                            });
+                            this.getPartsSetTabData()
+
+                        }).catch(err =>{
+                            this.$message({
+                                type: 'error',
+                                duration: 1500,
+                                showClose: true,
+                                message: err.message
+                            });
+                        })
+                    }).catch(() =>{
+                        this.$message({
+                            type: 'info',
+                            duration: 1500,
+                            showClose: true,
+                            message: '已取消删除'
+                        });
+                    })
+                }
+            }
+        }
+    }
+</script>
+
+
+<style scoped>
+    .el-upload{
+        float: left;
+    }
+/* 车型图标设置 */
+    .choosePic{
+        display: inline-flex;
+        margin-left: 9px;
+    }
+    .choosePic .el-button{
+       font-size: 14px !important;
+       color: #666 !important;
+    }
+    .titlePic:hover{
+        background-color: #fff !important;
+        color: #666 !important;
+    }
+    .el-radio-group{
+        margin-top: -14px;
+    }
+    .el-radio-group .el-radio{
+        padding-top: 14px;
+    }
+    .el-radio-group .el-radio span{
+        margin-left: 4px !important;
+    }
+</style>
+

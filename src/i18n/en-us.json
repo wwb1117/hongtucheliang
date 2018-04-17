@@ -1,0 +1,10 @@
+{
+    "plateform":"Hopechart",
+    "zh-CN":"Chinese",
+    "en-US":"English",
+    "defaultPage":"Home",
+    "menu.systemManage":"System Manage",
+    "menu.logManage":"Log Manage",
+    "menu.userManage":"User Manage",
+    "menu.menuManage":"Menu Manage"
+}

@@ -1,0 +1,23 @@
+K 25
+svn:wc:ra_dav:version-url
+V 95
+/svn/cloud_pt/!svn/ver/38649/platform/products/hq4.0/trunk/hqweb/hq-platform-html/src/mock/data
+END
+user.json
+K 25
+svn:wc:ra_dav:version-url
+V 105
+/svn/cloud_pt/!svn/ver/38138/platform/products/hq4.0/trunk/hqweb/hq-platform-html/src/mock/data/user.json
+END
+role.json
+K 25
+svn:wc:ra_dav:version-url
+V 105
+/svn/cloud_pt/!svn/ver/37972/platform/products/hq4.0/trunk/hqweb/hq-platform-html/src/mock/data/role.json
+END
+menu.json
+K 25
+svn:wc:ra_dav:version-url
+V 105
+/svn/cloud_pt/!svn/ver/39004/platform/products/hq4.0/trunk/hqweb/hq-platform-html/src/mock/data/menu.json
+END

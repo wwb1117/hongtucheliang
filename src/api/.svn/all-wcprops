@@ -1,0 +1,155 @@
+K 25
+svn:wc:ra_dav:version-url
+V 89
+/svn/cloud_pt/!svn/ver/38926/platform/products/hq4.0/trunk/hqweb/hq-platform-html/src/api
+END
+menu.js
+K 25
+svn:wc:ra_dav:version-url
+V 97
+/svn/cloud_pt/!svn/ver/37895/platform/products/hq4.0/trunk/hqweb/hq-platform-html/src/api/menu.js
+END
+lectotypeList.js
+K 25
+svn:wc:ra_dav:version-url
+V 106
+/svn/cloud_pt/!svn/ver/37578/platform/products/hq4.0/trunk/hqweb/hq-platform-html/src/api/lectotypeList.js
+END
+permissionManege.js
+K 25
+svn:wc:ra_dav:version-url
+V 109
+/svn/cloud_pt/!svn/ver/38926/platform/products/hq4.0/trunk/hqweb/hq-platform-html/src/api/permissionManege.js
+END
+login.js
+K 25
+svn:wc:ra_dav:version-url
+V 98
+/svn/cloud_pt/!svn/ver/37578/platform/products/hq4.0/trunk/hqweb/hq-platform-html/src/api/login.js
+END
+userCustom.js
+K 25
+svn:wc:ra_dav:version-url
+V 103
+/svn/cloud_pt/!svn/ver/37578/platform/products/hq4.0/trunk/hqweb/hq-platform-html/src/api/userCustom.js
+END
+terminal.js
+K 25
+svn:wc:ra_dav:version-url
+V 101
+/svn/cloud_pt/!svn/ver/38649/platform/products/hq4.0/trunk/hqweb/hq-platform-html/src/api/terminal.js
+END
+carMonitor.js
+K 25
+svn:wc:ra_dav:version-url
+V 103
+/svn/cloud_pt/!svn/ver/39273/platform/products/hq4.0/trunk/hqweb/hq-platform-html/src/api/carMonitor.js
+END
+carManage.js
+K 25
+svn:wc:ra_dav:version-url
+V 102
+/svn/cloud_pt/!svn/ver/38779/platform/products/hq4.0/trunk/hqweb/hq-platform-html/src/api/carManage.js
+END
+oilTypeList.js
+K 25
+svn:wc:ra_dav:version-url
+V 104
+/svn/cloud_pt/!svn/ver/37578/platform/products/hq4.0/trunk/hqweb/hq-platform-html/src/api/oilTypeList.js
+END
+log.js
+K 25
+svn:wc:ra_dav:version-url
+V 96
+/svn/cloud_pt/!svn/ver/37578/platform/products/hq4.0/trunk/hqweb/hq-platform-html/src/api/log.js
+END
+cityInfo.js
+K 25
+svn:wc:ra_dav:version-url
+V 101
+/svn/cloud_pt/!svn/ver/38318/platform/products/hq4.0/trunk/hqweb/hq-platform-html/src/api/cityInfo.js
+END
+monitor.js
+K 25
+svn:wc:ra_dav:version-url
+V 100
+/svn/cloud_pt/!svn/ver/39075/platform/products/hq4.0/trunk/hqweb/hq-platform-html/src/api/monitor.js
+END
+checkPlan.js
+K 25
+svn:wc:ra_dav:version-url
+V 102
+/svn/cloud_pt/!svn/ver/37578/platform/products/hq4.0/trunk/hqweb/hq-platform-html/src/api/checkPlan.js
+END
+vehicleManage.js
+K 25
+svn:wc:ra_dav:version-url
+V 106
+/svn/cloud_pt/!svn/ver/39073/platform/products/hq4.0/trunk/hqweb/hq-platform-html/src/api/vehicleManage.js
+END
+common.js
+K 25
+svn:wc:ra_dav:version-url
+V 99
+/svn/cloud_pt/!svn/ver/39008/platform/products/hq4.0/trunk/hqweb/hq-platform-html/src/api/common.js
+END
+fuelTypeList.js
+K 25
+svn:wc:ra_dav:version-url
+V 105
+/svn/cloud_pt/!svn/ver/37578/platform/products/hq4.0/trunk/hqweb/hq-platform-html/src/api/fuelTypeList.js
+END
+tankTypeList.js
+K 25
+svn:wc:ra_dav:version-url
+V 105
+/svn/cloud_pt/!svn/ver/37578/platform/products/hq4.0/trunk/hqweb/hq-platform-html/src/api/tankTypeList.js
+END
+userManege.js
+K 25
+svn:wc:ra_dav:version-url
+V 103
+/svn/cloud_pt/!svn/ver/38339/platform/products/hq4.0/trunk/hqweb/hq-platform-html/src/api/userManege.js
+END
+oilCalibration.js
+K 25
+svn:wc:ra_dav:version-url
+V 107
+/svn/cloud_pt/!svn/ver/37578/platform/products/hq4.0/trunk/hqweb/hq-platform-html/src/api/oilCalibration.js
+END
+checkItem.js
+K 25
+svn:wc:ra_dav:version-url
+V 102
+/svn/cloud_pt/!svn/ver/37578/platform/products/hq4.0/trunk/hqweb/hq-platform-html/src/api/checkItem.js
+END
+BaseUrl.js
+K 25
+svn:wc:ra_dav:version-url
+V 100
+/svn/cloud_pt/!svn/ver/39273/platform/products/hq4.0/trunk/hqweb/hq-platform-html/src/api/BaseUrl.js
+END
+role.js
+K 25
+svn:wc:ra_dav:version-url
+V 97
+/svn/cloud_pt/!svn/ver/38835/platform/products/hq4.0/trunk/hqweb/hq-platform-html/src/api/role.js
+END
+drivingRecord.js
+K 25
+svn:wc:ra_dav:version-url
+V 106
+/svn/cloud_pt/!svn/ver/39084/platform/products/hq4.0/trunk/hqweb/hq-platform-html/src/api/drivingRecord.js
+END
+department.js
+K 25
+svn:wc:ra_dav:version-url
+V 103
+/svn/cloud_pt/!svn/ver/37578/platform/products/hq4.0/trunk/hqweb/hq-platform-html/src/api/department.js
+END
+carModelManege.js
+K 25
+svn:wc:ra_dav:version-url
+V 107
+/svn/cloud_pt/!svn/ver/38665/platform/products/hq4.0/trunk/hqweb/hq-platform-html/src/api/carModelManege.js
+END

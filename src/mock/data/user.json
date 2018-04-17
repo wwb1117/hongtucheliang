@@ -1,0 +1,19 @@
+{
+    "code":200,
+    "message":"加载成功",
+    "data":[
+        {
+            "carNo": "豫A6845G",
+            "carVin": "aa765489514",
+            "orgUuid": "东京",
+            "carModelId": "奥迪R8",
+            "productionDateStr": "2018-01-12 07:01:20",
+            "tboxId": "12354",
+            "actualSimNo": "15698762542",
+            "ICCID": "588576356666",
+            "buildTime": "2018-02-18",
+            "builder": "iiii"
+        }
+
+    ]
+}
